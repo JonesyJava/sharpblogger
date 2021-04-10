@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using Dapper;
 using sharpblogger.Models;
 
 namespace sharpblogger.Repositories
@@ -13,14 +14,33 @@ namespace sharpblogger.Repositories
             _db = db;
         }
 
-        internal Profile GetById(object id)
+        internal Profile GetById(string id)
         {
-            throw new NotImplementedException();
+            string sql = "SELECT * FROM profiles WHERE id = @id";
+            return _db.QueryFirstOrDefault<Profile>(sql, new { id });
         }
 
-        internal Profile Create(Profile userInfo)
+        internal Profile Create(Profile newProfile)
         {
-            throw new NotImplementedException();
+            string sql = @"
+            INSERT INTO profiles
+              (name, picture, email, id)
+            VALUES
+              (@Name, @Picture, @Email, @Id)";
+            _db.Execute(sql, newProfile);
+            return newProfile;
+        }
+
+        internal Profile Edit(Profile update)
+        {
+            string sql = @"
+            UPDATE profiles
+            SET 
+              name = @Name,
+              picture = @Picture
+            WHERE id = @Id;";
+            _db.Execute(sql, update);
+            return update;
         }
     }
 }

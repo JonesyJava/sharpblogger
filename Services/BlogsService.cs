@@ -1,33 +1,70 @@
 using System;
+using System.Collections.Generic;
 using sharpblogger.Models;
+using sharpblogger.Repositories;
 
 namespace Services
 {
     public class BlogsService
     {
-        internal object GetAll()
+        private readonly BlogsRepository _repo;
+
+        public BlogsService(BlogsRepository repo)
         {
-            throw new NotImplementedException();
+            _repo = repo;
         }
 
-        internal object GetOneById(int id)
+        internal IEnumerable<Blog> GetBlogsByProfileId(string id)
         {
-            throw new NotImplementedException();
+            return _repo.GetBlogsByProfileId(id);
+        }
+
+        internal IEnumerable<Blog> GetAll()
+        {
+            return _repo.GetAll();
+        }
+
+        internal Blog GetOneById(int id)
+        {
+            Blog current = _repo.GetOneById(id);
+            if (current == null)
+            {
+                throw new SystemException("INVALID ID");
+            }
+            else
+            {
+                return current;
+            }
         }
 
         internal Blog CreateBlog(Blog newBlog)
         {
-            throw new NotImplementedException();
+            return _repo.CreateBlog(newBlog);
         }
 
         internal Blog EditBlog(Blog editedBlog)
         {
-            throw new NotImplementedException();
+            Blog current = GetOneById(editedBlog.Id);
+            if (current == null)
+            {
+                throw new SystemException("INVALID ID");
+            }
+            else
+            {
+                current.Body = editedBlog.Body != null ? editedBlog.Body : current.Body;
+                current.ImgUrl = editedBlog.ImgUrl != null ? editedBlog.ImgUrl : current.ImgUrl;
+                current.Published = editedBlog.Published != true ? editedBlog.Published : current.Published;
+                current.Title = editedBlog.Title != null ? editedBlog.Title : current.Title;
+                return _repo.EditBlog(current);
+            }
         }
 
-        internal object DeleteBlog(int id1, string id2)
+        internal object DeleteBlog(int id, string userInfoId)
         {
-            throw new NotImplementedException();
+            GetOneById(id);
+            _repo.DeleteBlog(id, userInfoId);
+            string deleted = "Blog deleted";
+            return deleted;
         }
     }
 }

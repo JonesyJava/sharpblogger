@@ -1,12 +1,59 @@
 using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Repositories;
+using sharpblogger.Models;
 
 namespace Services
 {
     public class CommentsService
     {
-        internal object GetCommentsByBlogId(int id)
+
+        private readonly CommentsRepository _repo;
+
+        public CommentsService(CommentsRepository repo)
         {
-            throw new NotImplementedException();
+            _repo = repo;
+        }
+
+        internal IEnumerable<Comment> GetAll()
+        {
+            return _repo.GetAll();
+        }
+
+        internal ActionResult<Comment> CreateComment(Comment newComment)
+        {
+            return _repo.CreateComment(newComment);
+        }
+
+        internal Comment EditComment(Comment editedComment)
+        {
+            Comment original = _repo.GetOneById(editedComment.Id);
+            if (original == null)
+            {
+                throw new SystemException("INVALID ID");
+            }
+            else
+            {
+                original.Body = editedComment.Body != null ? editedComment.Body : original.Body;
+                return _repo.EditComment(original);
+            }
+        }
+
+        internal object DeleteComment(int id, string userInfoId)
+        {
+            _repo.GetOneById(id);
+            _repo.DeleteComment(id, userInfoId);
+            string deleted = "Comment Deleted";
+            return deleted;
+        }
+        internal IEnumerable<Comment> GetCommentsByProfileId(string id)
+        {
+            return _repo.GetCommentsByProfileId(id);
+        }
+        internal IEnumerable<Comment> GetCommentsByBlogId(int id)
+        {
+            return _repo.GetCommentsByBlogId(id);
         }
     }
 }
